@@ -1,7 +1,7 @@
 package com.bernar.adventofcode2020
 
 object Day3 extends App {
-  val lines = FileInput.readStringFromFile("input3.txt")
+  val lines = FileInput.readLinesFromFile("input3.txt")
   val w = lines.head.length
   val h = lines.length
 

@@ -1,7 +1,7 @@
 package com.bernar.adventofcode2020
 
 object Day2 extends App {
-  val lines = FileInput.readStringFromFile("input2.txt")
+  val lines = FileInput.readLinesFromFile("input2.txt")
   val regex = "(\\d+)-(\\d+) (\\w): ([a-z]+)".r
   println(lines.count(isPasswordPart1))
   println(lines.count(isPasswordPart2))
