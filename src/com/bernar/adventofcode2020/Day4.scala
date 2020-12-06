@@ -4,19 +4,19 @@ import scala.util.matching.Regex
 
 object Day4 extends App {
   val fileInput = FileInput.readStringFromFile("input4.txt")
-  val passports1 = fileInput.split(sys.props("line.separator").repeat(2))
-    .map(passportString => new PassportBuilder1(passportString).fromString1)
+  val passportsPieces = fileInput.split(sys.props("line.separator").repeat(2))
+
+  val splitPassportPieces = passportsPieces
+    .map(piece => piece.split(" ").toList)
+    .map(piece => piece.flatMap(subPiece => subPiece.split(sys.props("line.separator"))))
     .toList
 
-  println(passports1.count(isPassportValid1))
+  val passports = splitPassportPieces.map(buildPassport)
 
-  val passports2 = fileInput.split(sys.props("line.separator").repeat(2))
-    .map(passportString => new PassportBuilder2(passportString).fromString2)
-    .toList
+  //  println(passports.count(isPassportValid))
+  println(passports.count(isPassportValid2))
 
-  println(passports2.count(isPassportValid2))
-
-  def isPassportValid1(passport: Passport): Boolean = {
+  def isPassportValid(passport: Passport): Boolean = {
     val output = passport.byr.isDefined &&
       passport.iyr.isDefined &&
       passport.eyr.isDefined &&
@@ -28,100 +28,35 @@ object Day4 extends App {
     output
   }
 
-
   def isPassportValid2(passport: Passport): Boolean = {
+    val hgtRegex = "(\\d+)(cm|in)".r
+    val hclRegex = "(#[0-9a-f]{6})".r
+
     val output = passport.byr.isDefined &&
+      passport.byr.get.toInt >= 1920 &&
+      passport.byr.get.toInt <= 2002 &&
       passport.iyr.isDefined &&
+      passport.iyr.get.toInt >= 2010 &&
+      passport.iyr.get.toInt <= 2020 &&
       passport.eyr.isDefined &&
-      passport.hgt.isDefined &&
-      passport.hcl.isDefined &&
-      passport.ecl.isDefined &&
-      passport.pid.isDefined
-    //    println(passport + " " + output)
+      passport.eyr.get.toInt >= 2020 &&
+      passport.eyr.get.toInt <= 2030 &&
+      passport.hgt.isDefined && {
+      passport.hgt.get match {
+        case hgtRegex(value, unit) => (unit.equals("cm") && value.toInt >= 150 && value.toInt <= 193) ||
+          (unit.equals("in") && value.toInt >= 59 && value.toInt <= 76)
+        case _ => false
+      }} &&
+      passport.hcl.isDefined && {
+      passport.hcl.get match {
+        case hclRegex(_) => true
+        case _ => false
+      }} &&
+      passport.ecl.isDefined && (passport.ecl.get.equals("amb") || passport.ecl.get.equals("blu") ||
+      passport.ecl.get.equals("brn") || passport.ecl.get.equals("gry") || passport.ecl.get.equals("grn") || passport.ecl.get.equals("hzl") || passport.ecl.get.equals("oth")) &&
+      passport.pid.isDefined && passport.pid.get.forall(_.isDigit) && passport.pid.get.length == 9
+    println(passport + " " + output)
     output
-  }
-
-  abstract class PassportBuilder(val passportString: String) {
-
-    protected def byrRegex: Regex
-
-    protected def iyrRegex: Regex
-
-    protected def eyrRegex: Regex
-
-    protected def hgtRegex: Regex
-
-    protected def hclRegex: Regex
-
-    protected def eclRegex: Regex
-
-    protected def pidRegex: Regex
-
-    protected def cidRegex: Regex
-
-    def fromString1: Passport = Passport(
-      applyRegex1(byrRegex, _ => true), applyRegex1(iyrRegex, _ => true), applyRegex1(eyrRegex, _ => true), applyRegex1(hgtRegex, _ => true),
-      applyRegex1(hclRegex, _ => true), applyRegex1(eclRegex, _ => true), applyRegex1(pidRegex, _ => true), applyRegex1(cidRegex, _ => true))
-
-    def fromString2: Passport = Passport(
-      applyRegex1(byrRegex, s => s.toInt >= 1920 && s.toInt <= 2002),
-      applyRegex1(iyrRegex, s => s.toInt >= 2010 && s.toInt <= 2020),
-      applyRegex1(eyrRegex, s => s.toInt >= 2020 && s.toInt <= 2030),
-      applyRegex2(hgtRegex, (value, unit) => (unit == "cm" && value.toInt >= 150 && value.toInt <= 193) ||
-        (unit == "in" && value.toInt >= 59 && value.toInt <= 76)),
-      applyRegex1(hclRegex, _ => true),
-      applyRegex1(eclRegex, s => s == "amb" || s == "blu" || s == "brn" || s == "gry" || s == "grn" || s == "hzl" || s == "oth"),
-      applyRegex1(pidRegex, _.length <= 9),
-      applyRegex1(cidRegex, _ => true))
-
-
-    protected def applyRegex1(regex: Regex, condition: String => Boolean): Option[String] =
-      regex.findFirstIn(passportString).getOrElse("") match {
-        case regex(value) => Some(value).filter(condition)
-        case _ => None
-      }
-
-    protected def applyRegex2(regex: Regex, condition: (String, String) => Boolean): Option[String] =
-      regex.findFirstIn(passportString).getOrElse("") match {
-        case regex(value, unit) => if (condition(value, unit)) Some(value + unit) else None
-        case _ => None
-      }
-  }
-
-  class PassportBuilder1(override val passportString: String) extends PassportBuilder(passportString) {
-    override def byrRegex: Regex = "byr:([^\\s]+)".r
-
-    override def iyrRegex: Regex = "iyr:([^\\s]+)".r
-
-    override def eyrRegex: Regex = "eyr:([^\\s]+)".r
-
-    override def hgtRegex: Regex = "hgt:([^\\s]+)".r
-
-    override def hclRegex: Regex = "hcl:([^\\s]+)".r
-
-    override def eclRegex: Regex = "ecl:([^\\s]+)".r
-
-    override def pidRegex: Regex = "pid:([^\\s]+)".r
-
-    override def cidRegex: Regex = "cid:([^\\s]+)".r
-  }
-
-  class PassportBuilder2(override val passportString: String) extends PassportBuilder(passportString) {
-    override def byrRegex: Regex = "byr:(\\d+)".r
-
-    override def iyrRegex: Regex = "iyr:(\\d+)".r
-
-    override def eyrRegex: Regex = "eyr:(\\d+)".r
-
-    override def hgtRegex: Regex = "hgt:(\\d+)(cm|in)".r
-
-    override def hclRegex: Regex = "hcl:(#[0-9a-f]+)".r
-
-    override def eclRegex: Regex = "ecl:([a-z]+)".r
-
-    override def pidRegex: Regex = "pid:(\\d+)".r
-
-    override def cidRegex: Regex = "cid:([^\\s]+)".r
   }
 
   case class Passport(byr: Option[String],
@@ -131,7 +66,32 @@ object Day4 extends App {
                       hcl: Option[String],
                       ecl: Option[String],
                       pid: Option[String],
-                      cid: Option[String])
+                      cid: Option[String]) {
+    override def toString: String = "Passport(byr: " + byr + " iyr: " + iyr + " eyr: " + eyr + " hgt: " + hgt +
+      " hcl: " + hcl + " ecl: " + ecl + " pid: " + pid + " cid: " + cid + ")"
+  }
+
+  def buildPassport(passportPiece: List[String]): Passport = {
+    var byr: Option[String] = None
+    var iyr: Option[String] = None
+    var eyr: Option[String] = None
+    var hgt: Option[String] = None
+    var hcl: Option[String] = None
+    var ecl: Option[String] = None
+    var pid: Option[String] = None
+    var cid: Option[String] = None
+    passportPiece.foreach(item => {
+      if (item.startsWith("byr")) byr = Some(item.substring(4))
+      if (item.startsWith("iyr")) iyr = Some(item.substring(4))
+      if (item.startsWith("eyr")) eyr = Some(item.substring(4))
+      if (item.startsWith("hgt")) hgt = Some(item.substring(4))
+      if (item.startsWith("hcl")) hcl = Some(item.substring(4))
+      if (item.startsWith("ecl")) ecl = Some(item.substring(4))
+      if (item.startsWith("pid")) pid = Some(item.substring(4))
+      if (item.startsWith("cid")) cid = Some(item.substring(4))
+    })
+    Passport(byr, iyr, eyr, hgt, hcl, ecl, pid, cid)
+  }
 
 }
 
