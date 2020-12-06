@@ -1,7 +1,5 @@
 package com.bernar.adventofcode2020
 
-import scala.util.matching.Regex
-
 object Day4 extends App {
   val fileInput = FileInput.readStringFromFile("input4.txt")
   val passportsPieces = fileInput.split(sys.props("line.separator").repeat(2))
@@ -13,7 +11,7 @@ object Day4 extends App {
 
   val passports = splitPassportPieces.map(buildPassport)
 
-  //  println(passports.count(isPassportValid))
+  println(passports.count(isPassportValid))
   println(passports.count(isPassportValid2))
 
   def isPassportValid(passport: Passport): Boolean = {
@@ -32,7 +30,7 @@ object Day4 extends App {
     val hgtRegex = "(\\d+)(cm|in)".r
     val hclRegex = "(#[0-9a-f]{6})".r
 
-    val output = passport.byr.isDefined &&
+    passport.byr.isDefined &&
       passport.byr.get.toInt >= 1920 &&
       passport.byr.get.toInt <= 2002 &&
       passport.iyr.isDefined &&
@@ -46,17 +44,17 @@ object Day4 extends App {
         case hgtRegex(value, unit) => (unit.equals("cm") && value.toInt >= 150 && value.toInt <= 193) ||
           (unit.equals("in") && value.toInt >= 59 && value.toInt <= 76)
         case _ => false
-      }} &&
+      }
+    } &&
       passport.hcl.isDefined && {
       passport.hcl.get match {
         case hclRegex(_) => true
         case _ => false
-      }} &&
+      }
+    } &&
       passport.ecl.isDefined && (passport.ecl.get.equals("amb") || passport.ecl.get.equals("blu") ||
       passport.ecl.get.equals("brn") || passport.ecl.get.equals("gry") || passport.ecl.get.equals("grn") || passport.ecl.get.equals("hzl") || passport.ecl.get.equals("oth")) &&
       passport.pid.isDefined && passport.pid.get.forall(_.isDigit) && passport.pid.get.length == 9
-    println(passport + " " + output)
-    output
   }
 
   case class Passport(byr: Option[String],
