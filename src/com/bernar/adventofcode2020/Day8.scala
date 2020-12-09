@@ -22,7 +22,7 @@ object Day8 extends App {
   println(fixAndRun(instructionMap))
 
   private def fixAndRun(instructionMap: Map[Int, Instruction]): Int = {
-    val indices = instructionMap.keys.filter(i => finishes(0, changePosition(i, instructionMap)))
+    val indices = Range(0, instructionMap.size).filter(i => finishes(0, changePosition(i, instructionMap)))
     indices.map(index => updateAccumulator(0, 0, changePosition(index, instructionMap))).toList.head
   }
 
@@ -36,26 +36,28 @@ object Day8 extends App {
   }
 
   @tailrec
-  private def updateAccumulator(i: Int, accumulator: Int, instructionMap: Map[Int, Instruction]): Int = instructionMap(i) match {
-    case Accumulate(_, true) => accumulator
-    case Nop(_, true) => accumulator
-    case Jump(_, true) => accumulator
-    case Accumulate(operator, false) => updateAccumulator(i + 1, accumulator + operator, instructionMap + (i -> updateInstruction(instructionMap(i))))
-    case Jump(operator, false) => updateAccumulator(i + operator, accumulator, instructionMap + (i -> updateInstruction(instructionMap(i))))
-    case Nop(_, false) => updateAccumulator(i + 1, accumulator, instructionMap + (i -> updateInstruction(instructionMap(i))))
-  }
+  private def updateAccumulator(i: Int, accumulator: Int, instructionMap: Map[Int, Instruction]): Int = if (i == instructionMap.size) accumulator else
+    instructionMap(i) match {
+      case Accumulate(_, true) => accumulator
+      case Nop(_, true) => accumulator
+      case Jump(_, true) => accumulator
+      case Accumulate(operator, false) => updateAccumulator(i + 1, accumulator + operator, instructionMap + (i -> updateInstruction(instructionMap(i))))
+      case Jump(operator, false) => updateAccumulator(i + operator, accumulator, instructionMap + (i -> updateInstruction(instructionMap(i))))
+      case Nop(_, false) => updateAccumulator(i + 1, accumulator, instructionMap + (i -> updateInstruction(instructionMap(i))))
+    }
 
 
   @tailrec
-  private def finishes(i: Int, instructionMap: Map[Int, Instruction]): Boolean = instructionMap(i) match {
-    case Accumulate(_, true) => false
-    case Nop(_, true) => false
-    case Jump(_, true) => false
-    case Accumulate(_, false) => if (i == instructionMap.size - 1) true else finishes(i + 1, instructionMap + (i -> updateInstruction(instructionMap(i))))
-    case Jump(operator, false) =>
-      finishes(i + operator, instructionMap + (i -> updateInstruction(instructionMap(i))))
-    case Nop(_, false) => if (i == instructionMap.size - 1) true else finishes(i + 1, instructionMap + (i -> updateInstruction(instructionMap(i))))
-  }
+  private def finishes(i: Int, instructionMap: Map[Int, Instruction]): Boolean = if (i == instructionMap.size) true else
+    instructionMap(i) match {
+      case Accumulate(_, true) => false
+      case Nop(_, true) => false
+      case Jump(_, true) => false
+      case Accumulate(_, false) => if (i == instructionMap.size - 1) true else finishes(i + 1, instructionMap + (i -> updateInstruction(instructionMap(i))))
+      case Jump(operator, false) =>
+        finishes(i + operator, instructionMap + (i -> updateInstruction(instructionMap(i))))
+      case Nop(_, false) => if (i == instructionMap.size - 1) true else finishes(i + 1, instructionMap + (i -> updateInstruction(instructionMap(i))))
+    }
 
   private def updateInstruction(instruction: Instruction): Instruction = instruction match {
     case Accumulate(operator, _) => Accumulate(operator, visited = true)
