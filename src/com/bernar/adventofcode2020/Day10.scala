@@ -20,14 +20,17 @@ object Day10 extends App {
   val intervals2 = calculateIntervals(smallList2).mkString("")
   val intervalinput = calculateIntervals(numbers).mkString("")
 
-  val result1 = (regex findAllIn intervals1).toList.map(s => s.length).filter(_ > 1).map(i => combinationsSequence(i + 1)).product
-  val result2 = (regex findAllIn intervals2).toList.map(s => s.length).filter(_ > 1).map(i => combinationsSequence(i + 1)).product
-  val resultinput = (regex findAllIn intervalinput).toList.map(s => s.length).filter(_ > 1).map(i => combinationsSequence(i + 1)).product
-
+  val result1 = calculateCombinationsAdaptors(intervals1)
+  val result2 = calculateCombinationsAdaptors(intervals2)
+  val resultinput = calculateCombinationsAdaptors(intervalinput)
 
   println(result1)
   println(result2)
   println(resultinput)
+
+  private def calculateCombinationsAdaptors(intervals: String) = {
+    (regex findAllIn intervals).toList.map(s => s.length).filter(_ > 1).map(i => combinationsSequence(i + 1)).product
+  }
 
   private def calculateIntervals(numbers: List[Int]) = {
     val max = numbers.max
