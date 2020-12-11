@@ -8,13 +8,11 @@ object Day7 extends App {
   val rightSideEnd = "(\\d)*\\s(.)*bags|bag."
   val regexEmpty = "(.*)\\sbags contain\\sno other bags.".r
   val regexStandard = "(.*)\\sbags contain\\s(\\d+\\s.*bags|bag,\\s)*(\\d)*\\s(.)*bags|bag\\.".r
-  lines.foreach(line => {
-    line match {
-      case regexEmpty(leftBag) => println(line + ": " + leftBag.trim)
-      case regexStandard(leftBag, array, rightNumber, alsfsdf) => println(s"$line: $leftBag, $array, $rightNumber, $alsfsdf")
-      case _ => "no match"
-    }
-  })
+  lines.foreach {
+    case line@regexEmpty(leftBag) => println(line + ": " + leftBag.trim)
+    case line@regexStandard(leftBag, array, rightNumber, alsfsdf) => println(s"$line: $leftBag, $array, $rightNumber, $alsfsdf")
+    case _ => "no match"
+  }
 //  val rules = lines.map(buildRule)
 
 
