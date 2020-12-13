@@ -4,12 +4,12 @@ object Day12 extends App {
   val movements = FileInput.readLinesFromFile("input12.txt").map(movementFromString)
 
   //Part 1
-  val finalPosition1 = movements.foldLeft(Position(0, 0))((position, movement) => calculateNextPosition1(movement, position))
+  val finalPosition1 = movements.foldLeft(Position(0, 0))((position, movement) => calculateNextPosition1(position, movement))
   println(finalPosition1)
   println(math.abs(finalPosition1.x) + math.abs(finalPosition1.y))
 
   //Part 2
-  val finalPosition2 = movements.foldLeft(PositionWayPoint(0, 0, 10, 1))((positionWayPoint, movement) => calculateNextPosition2(movement, positionWayPoint))
+  val finalPosition2 = movements.foldLeft(PositionWayPoint(0, 0, 10, 1))((positionWayPoint, movement) => calculateNextPosition2(positionWayPoint, movement))
   println(finalPosition2)
   println(math.abs(finalPosition2.x) + math.abs(finalPosition2.y))
 
@@ -23,7 +23,7 @@ object Day12 extends App {
     case 'F' => MoveForward(string.substring(1).toInt)
   }
 
-  private def calculateNextPosition1(movement: Movement, position: Position): Position = movement match {
+  private def calculateNextPosition1(position: Position, movement: Movement) = movement match {
     case MoveNorth(distance) => Position(position.x, position.y + distance, position.orientation)
     case MoveSouth(distance) => Position(position.x, position.y - distance, position.orientation)
     case MoveEast(distance) => Position(position.x + distance, position.y, position.orientation)
@@ -48,7 +48,7 @@ object Day12 extends App {
     }
   }
 
-  private def calculateNextPosition2(movement: Movement, positionWayPoint: PositionWayPoint): PositionWayPoint = movement match {
+  private def calculateNextPosition2(positionWayPoint: PositionWayPoint, movement: Movement) = movement match {
     case MoveNorth(distance) => PositionWayPoint(positionWayPoint.x, positionWayPoint.y, positionWayPoint.xWayPoint, positionWayPoint.yWayPoint + distance)
     case MoveSouth(distance) => PositionWayPoint(positionWayPoint.x, positionWayPoint.y, positionWayPoint.xWayPoint, positionWayPoint.yWayPoint - distance)
     case MoveEast(distance) => PositionWayPoint(positionWayPoint.x, positionWayPoint.y, positionWayPoint.xWayPoint + distance, positionWayPoint.yWayPoint)
