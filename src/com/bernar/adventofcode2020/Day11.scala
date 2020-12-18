@@ -42,12 +42,15 @@ object Day11 extends App {
   }
 
 
-  private def buildRanges(grid: List[Array[Char]], i: Int, j: Int) = Range(i - 1, i + 2).filter(idx => idx >= 0 && idx < grid.size)
+  private def buildAdjacentNeighbourhood(grid: List[Array[Char]], i: Int, j: Int) = Range(i - 1, i + 2).filter(idx => idx >= 0 && idx < grid.size)
     .flatMap(idx => Range(j - 1, j + 2).filter(jdx => jdx >= 0 && jdx < grid.head.length).map(jdx => (idx, jdx)).filter(indices => indices._1 != i || indices._2 != j))
 
-  private def allAdjacentsAreNoOccupied(grid: List[Array[Char]], i: Int, j: Int) = buildRanges(grid, i, j).forall(index => grid(index._1)(index._2) != '#')
+  private def buildSeeLineNeighbourhood(grid: List[Array[Char]], i: Int, j: Int) = Range(i - 1, i + 2).filter(idx => idx >= 0 && idx < grid.size)
+    .flatMap(idx => Range(j - 1, j + 2).filter(jdx => jdx >= 0 && jdx < grid.head.length).map(jdx => (idx, jdx)).filter(indices => indices._1 != i || indices._2 != j))
 
-  private def fourOrMoreAdjacentsAreOccupied(grid: List[Array[Char]], i: Int, j: Int) = buildRanges(grid, i, j).count(index => grid(index._1)(index._2) == '#') >= 4
+  private def allAdjacentsAreNoOccupied(grid: List[Array[Char]], i: Int, j: Int) = buildAdjacentNeighbourhood(grid, i, j).forall(index => grid(index._1)(index._2) != '#')
+
+  private def fourOrMoreAdjacentsAreOccupied(grid: List[Array[Char]], i: Int, j: Int) = buildAdjacentNeighbourhood(grid, i, j).count(index => grid(index._1)(index._2) == '#') >= 4
 
   private def copyGrid(grid: List[Array[Char]]): List[Array[Char]] = {
     var grid2 = List[Array[Char]]()
