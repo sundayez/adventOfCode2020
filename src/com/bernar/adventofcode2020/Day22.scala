@@ -70,7 +70,12 @@ object Day22 extends App {
   def playRound2(roundStatus: RoundStatus, roundNumber: Int, gameNumber: Int, historic: List[RoundStatus]): Player = {
     roundStatus match {
       case NormalStatus(p1, p2) =>
-        if (historic.contains(roundNumber)) p1
+        if (historic.contains(roundStatus)) {
+          println(s"Repetition in game $gameNumber round $roundNumber")
+          println(p1)
+          println(p2)
+          p1
+        }
         else if (p1.cards.isEmpty) {
           println(s"The winner of game $gameNumber is player ${p2.id}")
           p2
@@ -117,20 +122,20 @@ object Day22 extends App {
   case class Player(id: Int, cards: List[Int]) {
     override def toString: String = s"Player $id's deck: ${cards.mkString(", ")}"
 
-    override def equals(obj: Any): Boolean = obj match {
-      case player: Player => id.equals(player.id) && cards.size == player.cards.size && cards.indices.forall(i => cards(i) == player.cards(i))
-    }
+//    override def equals(obj: Any): Boolean = obj match {
+//      case player: Player => id.equals(player.id) && cards.size == player.cards.size && cards.indices.forall(i => cards(i) == player.cards(i))
+//    }
   }
 
   trait RoundStatus
 
-  case class NormalStatus(p1: Player, p2: Player) extends RoundStatus {
-    override def equals(obj: Any): Boolean =
-      obj match {
-        case status: NormalStatus => p1.equals(status.p1) && p2.equals(status.p2)
-        case _ => false
-      }
-  }
+  case class NormalStatus(p1: Player, p2: Player) extends RoundStatus //{
+//    override def equals(obj: Any): Boolean =
+//      obj match {
+//        case status: NormalStatus => p1.equals(status.p1) && p2.equals(status.p2)
+//        case _ => false
+//      }
+//  }
 
   case class FinalStatus(finalPoints: Int) extends RoundStatus
 
